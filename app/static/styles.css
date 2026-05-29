@@ -79,22 +79,41 @@ h2 {
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 8px;
+  cursor: pointer;
   display: flex;
   gap: 14px;
   min-height: 52px;
   padding: 10px 14px;
+  position: relative;
 }
 
-.file-picker span {
-  color: var(--muted);
+.file-button {
+  background: #edf5f2;
+  border: 1px solid rgba(18, 107, 93, 0.2);
+  border-radius: 8px;
+  color: var(--accent-dark);
   flex: 0 0 auto;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  padding: 10px 14px;
 }
 
-input[type="file"] {
+.file-name {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
   min-width: 0;
-  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.native-file-input {
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
 }
 
 button {

@@ -3,21 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPUB 转 TXT</title>
+    <title>电子书转文本</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
   </head>
   <body>
     <main class="shell">
       <section class="panel">
         <div class="heading">
-          <p class="eyebrow">EPUB to TXT</p>
-          <h1>EPUB 转 TXT</h1>
+          <p class="eyebrow">本地网页转换工具</p>
+          <h1>电子书转文本</h1>
         </div>
 
         <form class="upload" action="/convert" method="post" enctype="multipart/form-data">
           <label class="file-picker">
-            <span>选择 EPUB 文件</span>
-            <input type="file" name="file" accept=".epub,application/epub+zip" required />
+            <span class="file-button">选择电子书文件</span>
+            <span class="file-name" data-file-name>尚未选择文件</span>
+            <input
+              class="native-file-input"
+              type="file"
+              name="file"
+              accept=".epub,application/epub+zip"
+              aria-label="选择电子书文件"
+              required
+            />
           </label>
           <button type="submit">转换</button>
         </form>
@@ -36,7 +44,7 @@
               <form action="/download" method="post">
                 <input type="hidden" name="filename" value="{{ output_filename }}" />
                 <textarea name="text" class="hidden-text">{{ text }}</textarea>
-                <button type="submit">下载 TXT</button>
+                <button type="submit">下载文本文件</button>
               </form>
             </div>
             <textarea class="preview" readonly>{{ text }}</textarea>
@@ -44,5 +52,13 @@
         {% endif %}
       </section>
     </main>
+    <script>
+      const fileInput = document.querySelector(".native-file-input");
+      const fileName = document.querySelector("[data-file-name]");
+
+      fileInput?.addEventListener("change", () => {
+        fileName.textContent = fileInput.files?.[0]?.name || "尚未选择文件";
+      });
+    </script>
   </body>
 </html>

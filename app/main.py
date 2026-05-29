@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from app.converter import EpubConversionError, convert_epub_bytes
 
 
-app = FastAPI(title="EPUB to TXT")
+app = FastAPI(title="电子书转文本")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
