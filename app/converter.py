@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import unquote, urldefrag
 from xml.etree import ElementTree
 
 
@@ -155,7 +156,7 @@ def _find_spine_document_paths(epub: zipfile.ZipFile, opf_path: str) -> list[str
         if item is None:
             continue
         media_type = item.get("media-type", "")
-        href = item.get("href", "")
+        href = unquote(urldefrag(item.get("href", ""))[0])
         if media_type not in {"application/xhtml+xml", "text/html"}:
             continue
         document_paths.append(posixpath.normpath(posixpath.join(base_dir, href)))

@@ -44,3 +44,17 @@ def test_download_returns_text_attachment():
     assert response.headers["content-type"].startswith("text/plain")
     assert "attachment" in response.headers["content-disposition"]
     assert "book.txt" in response.headers["content-disposition"]
+
+
+def test_download_supports_unicode_filename():
+    response = client.post(
+        "/download",
+        data={"filename": "电子书.txt", "text": "正文"},
+    )
+
+    assert response.status_code == 200
+    assert response.text == "正文"
+    assert "filename=\"download.txt\"" in response.headers["content-disposition"]
+    assert "filename*=UTF-8''%E7%94%B5%E5%AD%90%E4%B9%A6.txt" in response.headers[
+        "content-disposition"
+    ]

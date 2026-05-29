@@ -46,13 +46,14 @@ async def convert(request: Request, file: UploadFile = File(...)) -> HTMLRespons
 @app.post("/download")
 async def download(filename: str = Form(...), text: str = Form(...)) -> Response:
     safe_filename = _safe_txt_filename(filename)
+    fallback_filename = _ascii_download_filename(safe_filename)
     quoted = quote(safe_filename)
     return Response(
         text,
         media_type="text/plain; charset=utf-8",
         headers={
             "Content-Disposition": (
-                f'attachment; filename="{safe_filename}"; filename*=UTF-8\'\'{quoted}'
+                f'attachment; filename="{fallback_filename}"; filename*=UTF-8\'\'{quoted}'
             )
         },
     )
@@ -86,3 +87,9 @@ def _safe_txt_filename(filename: str) -> str:
     if not name.lower().endswith(".txt"):
         name = f"{Path(name).stem or 'converted'}.txt"
     return name
+
+
+def _ascii_download_filename(filename: str) -> str:
+    stem = Path(filename).stem.encode("ascii", errors="ignore").decode("ascii")
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "-", stem).strip("._-")
+    return f"{stem or 'download'}.txt"

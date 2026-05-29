@@ -97,3 +97,38 @@ def test_missing_package_metadata_raises_conversion_error():
 
     with pytest.raises(EpubConversionError, match="结构不完整"):
         convert_epub_bytes(buffer.getvalue(), "missing.epub")
+
+
+def test_decodes_url_encoded_manifest_hrefs():
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w") as epub:
+        epub.writestr("mimetype", "application/epub+zip")
+        epub.writestr(
+            "META-INF/container.xml",
+            """<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>
+""",
+        )
+        epub.writestr(
+            "OEBPS/content.opf",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+  <manifest>
+    <item id="chapter" href="chapter%201.xhtml" media-type="application/xhtml+xml"/>
+  </manifest>
+  <spine><itemref idref="chapter"/></spine>
+</package>
+""",
+        )
+        epub.writestr(
+            "OEBPS/chapter 1.xhtml",
+            "<html><body><h1>Encoded Path</h1><p>Works</p></body></html>",
+        )
+
+    result = convert_epub_bytes(buffer.getvalue(), "encoded.epub")
+
+    assert result.text == "Encoded Path\n\nWorks"
