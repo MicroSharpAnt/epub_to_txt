@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EPUB 转 TXT</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <div class="heading">
+          <p class="eyebrow">EPUB to TXT</p>
+          <h1>EPUB 转 TXT</h1>
+        </div>
+
+        <form class="upload" action="/convert" method="post" enctype="multipart/form-data">
+          <label class="file-picker">
+            <span>选择 EPUB 文件</span>
+            <input type="file" name="file" accept=".epub,application/epub+zip" required />
+          </label>
+          <button type="submit">转换</button>
+        </form>
+
+        {% if error %}
+          <p class="alert" role="alert">{{ error }}</p>
+        {% endif %}
+
+        {% if text %}
+          <section class="result" aria-label="转换结果">
+            <div class="result-bar">
+              <div>
+                <p class="label">输出文件</p>
+                <h2>{{ output_filename }}</h2>
+              </div>
+              <form action="/download" method="post">
+                <input type="hidden" name="filename" value="{{ output_filename }}" />
+                <textarea name="text" class="hidden-text">{{ text }}</textarea>
+                <button type="submit">下载 TXT</button>
+              </form>
+            </div>
+            <textarea class="preview" readonly>{{ text }}</textarea>
+          </section>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>
