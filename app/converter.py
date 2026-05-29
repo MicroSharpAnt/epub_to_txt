@@ -59,7 +59,7 @@ class _TextExtractor(HTMLParser):
         "tr",
         "ul",
     }
-    SKIP_TAGS = {"script", "style"}
+    SKIP_TAGS = {"nav", "script", "style"}
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)

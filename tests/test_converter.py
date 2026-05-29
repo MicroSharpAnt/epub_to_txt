@@ -1,7 +1,9 @@
 import zipfile
 from io import BytesIO
 
-from app.converter import convert_epub_bytes
+import pytest
+
+from app.converter import EpubConversionError, convert_epub_bytes
 
 
 def make_epub(chapters: list[tuple[str, str]], spine: list[str] | None = None) -> bytes:
@@ -54,3 +56,44 @@ def test_converts_spine_items_in_reading_order():
 
     assert result.filename == "sample.txt"
     assert result.text == "Second\n\nTwo\n\nFirst\n\nOne"
+
+
+def test_cleans_html_entities_nav_scripts_and_repeated_whitespace():
+    epub_bytes = make_epub(
+        [
+            (
+                "chapter",
+                """
+                <html>
+                  <head><style>.hidden { display: none; }</style></head>
+                  <body>
+                    <nav>Table of contents</nav>
+                    <h1>Tom &amp; Jerry</h1>
+                    <script>ignoreMe()</script>
+                    <p>  spaced
+                       text  </p>
+                    <p>Second&nbsp;paragraph</p>
+                  </body>
+                </html>
+                """,
+            )
+        ]
+    )
+
+    result = convert_epub_bytes(epub_bytes, "entities.epub")
+
+    assert result.text == "Tom & Jerry\n\nspaced text\n\nSecond paragraph"
+
+
+def test_invalid_zip_raises_conversion_error():
+    with pytest.raises(EpubConversionError, match="不是有效的 EPUB"):
+        convert_epub_bytes(b"not an epub", "broken.epub")
+
+
+def test_missing_package_metadata_raises_conversion_error():
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w") as epub:
+        epub.writestr("mimetype", "application/epub+zip")
+
+    with pytest.raises(EpubConversionError, match="结构不完整"):
+        convert_epub_bytes(buffer.getvalue(), "missing.epub")
